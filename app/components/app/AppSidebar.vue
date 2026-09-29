@@ -5,11 +5,6 @@ const navigation = [
     icon: "i-lucide-map",
     to: "/trips",
   },
-  {
-    label: "Checklist",
-    icon: "i-lucide-list-checks",
-    to: "/checklist",
-  },
 ];
 </script>
 
