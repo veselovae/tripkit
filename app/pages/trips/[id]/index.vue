@@ -54,6 +54,8 @@ if (error.value) {
       </UButton>
     </div>
 
+    <TripNavigation :trip-id="trip.id" />
+
     <div class="mb-8 grid gap-4 md:grid-cols-3">
       <UCard>
         <div class="text-sm text-muted">Start</div>

@@ -13,6 +13,9 @@ export default defineNuxtConfig({
     appwriteDatabaseId: "",
     appwriteTripsTableId: "",
 
+    appwriteChecklistGroupsTableId: "",
+    appwriteChecklistItemsTableId: "",
+
     public: {
       appwriteEndpoint: "",
       appwriteProjectId: "",
