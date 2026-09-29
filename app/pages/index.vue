@@ -10,8 +10,8 @@ if (user.value) {
 }
 </script>
 
-<!-- <template>
+<template>
   <main>
     <h1>TripKit</h1>
   </main>
-</template> -->
+</template>

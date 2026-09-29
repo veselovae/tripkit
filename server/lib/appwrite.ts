@@ -1,4 +1,4 @@
-import { Account, Client } from "node-appwrite";
+import { Account, Client, TablesDB } from "node-appwrite";
 import type { H3Event } from "h3";
 
 export const SESSION_COOKIE = "tripkit-session";
@@ -31,5 +31,6 @@ export const createSessionClient = (event: H3Event) => {
 
   return {
     account: new Account(client),
+    tablesDB: new TablesDB(client),
   };
 };

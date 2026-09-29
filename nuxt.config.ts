@@ -10,6 +10,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     appwriteApiKey: "",
+    appwriteDatabaseId: "",
+    appwriteTripsTableId: "",
 
     public: {
       appwriteEndpoint: "",
