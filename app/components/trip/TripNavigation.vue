@@ -12,7 +12,9 @@ defineProps<{ tripId: string }>();
       Checklist
     </UButton>
 
-    <UButton disabled color="neutral" variant="ghost">Bookings</UButton>
+    <UButton :to="`/trips/${tripId}/bookings`" color="neutral" variant="ghost">
+      Bookings
+    </UButton>
 
     <UButton disabled color="neutral" variant="ghost">Documents</UButton>
   </nav>

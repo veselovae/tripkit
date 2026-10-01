@@ -10,11 +10,15 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     appwriteApiKey: "",
+
     appwriteDatabaseId: "",
     appwriteTripsTableId: "",
 
     appwriteChecklistGroupsTableId: "",
     appwriteChecklistItemsTableId: "",
+
+    appwriteTransportTableId: "",
+    appwriteAccommodationsTableId: "",
 
     public: {
       appwriteEndpoint: "",
