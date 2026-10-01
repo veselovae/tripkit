@@ -15,7 +15,7 @@ export const useChecklist = () => {
   };
 
   const deleteGroup = (groupId: string) => {
-    return $fetch(`/api/checklist/groups/${groupId}`, {
+    return $fetch<{ success: boolean }>(`/api/checklist/groups/${groupId}`, {
       method: "DELETE",
     });
   };
@@ -43,17 +43,66 @@ export const useChecklist = () => {
   };
 
   const deleteItem = (itemId: string) => {
-    return $fetch(`/api/checklist/items/${itemId}`, {
+    return $fetch<{ success: boolean }>(`/api/checklist/items/${itemId}`, {
       method: "DELETE",
+    });
+  };
+
+  const updateGroup = (
+    groupId: string,
+    input: {
+      title?: string;
+      icon?: string;
+    },
+  ) => {
+    return $fetch<ChecklistGroup>(`/api/checklist/groups/${groupId}`, {
+      method: "PATCH",
+      body: input,
+    });
+  };
+
+  const reorderGroups = (
+    groups: Array<{
+      id: string;
+      sortOrder: number;
+    }>,
+  ) => {
+    return $fetch("/api/checklist/groups/reorder", {
+      method: "PATCH",
+      body: { groups },
+    });
+  };
+
+  const reorderItems = (
+    items: Array<{
+      id: string;
+      sortOrder: number;
+    }>,
+  ) => {
+    return $fetch("/api/checklist/items/reorder", {
+      method: "PATCH",
+      body: { items },
+    });
+  };
+
+  const applyDefaultTemplate = (tripId: string) => {
+    return $fetch(`/api/trips/${tripId}/checklist/template`, {
+      method: "POST",
     });
   };
 
   return {
     createGroup,
+    updateGroup,
     deleteGroup,
 
     createItem,
     updateItem,
     deleteItem,
+
+    reorderGroups,
+    reorderItems,
+
+    applyDefaultTemplate,
   };
 };

@@ -4,6 +4,7 @@ import { useTrips } from "~/composables/useTrips";
 definePageMeta({ middleware: "auth" });
 
 const { createTrip } = useTrips();
+const { applyDefaultTemplate } = useChecklist();
 
 const form = reactive({
   title: "",
@@ -15,6 +16,7 @@ const form = reactive({
 
 const loading = ref(false);
 const errorMessage = ref("");
+const createStarterChecklist = ref(true);
 
 const handleSubmit = async () => {
   errorMessage.value = "";
@@ -22,6 +24,10 @@ const handleSubmit = async () => {
 
   try {
     const trip = await createTrip(form);
+
+    if (createStarterChecklist.value) {
+      await applyDefaultTemplate(trip.id);
+    }
 
     await navigateTo(`/trips/${trip.id}`);
   } catch (error: any) {
@@ -87,6 +93,12 @@ const handleSubmit = async () => {
             class="w-full"
           />
         </UFormField>
+
+        <UCheckbox
+          v-model="createStarterChecklist"
+          label="Add starter checklist"
+          description="Creates Documents, Electronics, Clothes and Before trip groups."
+        />
 
         <UAlert
           v-if="errorMessage"

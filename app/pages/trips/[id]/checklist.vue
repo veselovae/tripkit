@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useChecklist } from "~/composables/useChecklist";
 import type { ChecklistGroupWithItems } from "~~/shared/types/checklist";
+import { checklistIcons } from "~/utils/checklistIcons";
+import { VueDraggable } from "vue-draggable-plus";
 
 import type { Trip } from "~~/shared/types/trip";
 
@@ -9,7 +11,7 @@ definePageMeta({ middleware: "auth" });
 const route = useRoute();
 const tripId = String(route.params.id);
 
-const { createGroup } = useChecklist();
+const { createGroup, reorderGroups, applyDefaultTemplate } = useChecklist();
 
 const { data: trip } = await useFetch<Trip>(`/api/trips/${tripId}`);
 
@@ -31,21 +33,27 @@ const groupForm = reactive({
 });
 
 const creatingGroup = ref(false);
+const applyingTemplate = ref(false);
+const localGroups = ref<ChecklistGroupWithItems[]>([]);
 
-const icons = [
-  "list-checks",
-  "file-text",
-  "plug",
-  "shirt",
-  "luggage",
-  "pill",
-  "wallet-cards",
-  "camera",
-  "map",
-  "plane",
-  "utensils",
-  "shopping-bag",
-];
+watch(
+  groups,
+  (value) => {
+    localGroups.value = value ? [...value] : [];
+  },
+  { immediate: true, deep: true },
+);
+
+const useStarterTemplate = async () => {
+  applyingTemplate.value = true;
+
+  try {
+    await applyDefaultTemplate(tripId);
+    await refresh();
+  } finally {
+    applyingTemplate.value = false;
+  }
+};
 
 const addGroup = async () => {
   if (!groupForm.title.trim()) return;
@@ -64,6 +72,21 @@ const addGroup = async () => {
     await refresh();
   } finally {
     creatingGroup.value = false;
+  }
+};
+
+const saveGroupsOrder = async () => {
+  const payload = localGroups.value.map((group, index) => ({
+    id: group.id,
+    sortOrder: (index + 1) * 100,
+  }));
+
+  try {
+    await reorderGroups(payload);
+
+    await refresh();
+  } catch {
+    await refresh();
   }
 };
 
@@ -139,7 +162,14 @@ const progress = computed(() => {
       </UFormField>
 
       <UFormField label="Icon">
-        <USelect v-model="groupForm.icon" :items="icons" class="w-48" />
+        <USelect
+          v-model="groupForm.icon"
+          :icon="`i-lucide-${groupForm.icon}`"
+          :items="checklistIcons"
+          value-key="value"
+          label-key="label"
+          class="w-48"
+        />
       </UFormField>
 
       <UButton icon="i-lucide-plus" :loading="creatingGroup" @click="addGroup">
@@ -147,14 +177,21 @@ const progress = computed(() => {
       </UButton>
     </div>
 
-    <div v-if="groups.length" class="space-y-4">
+    <VueDraggable
+      v-if="localGroups.length"
+      v-model="localGroups"
+      handle=".group-drag-handle"
+      :animation="180"
+      class="space-y-4"
+      @end="saveGroupsOrder"
+    >
       <ChecklistGroup
-        v-for="group in groups"
+        v-for="group in localGroups"
         :key="group.id"
         :group="group"
         @refresh="refresh"
       />
-    </div>
+    </VueDraggable>
 
     <div
       v-else
@@ -165,8 +202,18 @@ const progress = computed(() => {
       <h2 class="font-medium">Your checklist is empty</h2>
 
       <p class="mt-2 max-w-sm text-sm text-muted">
-        Create a group such as Documents, Electronics or Clothes.
+        Start from our travel template or create your own groups.
       </p>
+
+      <UButton
+        icon="i-lucide-sparkles"
+        variant="soft"
+        class="mt-6"
+        :loading="applyingTemplate"
+        @click="useStarterTemplate"
+      >
+        Use starter checklist
+      </UButton>
     </div>
   </div>
 </template>
