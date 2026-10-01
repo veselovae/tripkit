@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t, locale } = useI18n();
 import type { TripOverview } from "~~/shared/types/tripOverview";
 
 definePageMeta({
@@ -34,7 +35,7 @@ const accommodation = computed(() => overview.value?.accommodation ?? null);
 const loading = computed(() => status.value === "idle" || status.value === "pending");
 
 const formatTripDate = (value: string) => {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale.value, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -49,7 +50,7 @@ const retry = async () => {
 <template>
   <div class="mx-auto w-full max-w-6xl">
     <template v-if="loading && !overview">
-      <div class="mb-8" role="status" aria-busy="true" aria-label="Loading trip overview">
+      <div class="mb-8" role="status" aria-busy="true" :aria-label="t('overview.loading')">
         <USkeleton class="h-8 w-24" />
 
         <USkeleton class="mt-6 h-10 w-64 max-w-full" />
@@ -67,11 +68,8 @@ const retry = async () => {
 
     <AppErrorState
       v-else-if="error && !overview"
-      title="Could not load trip"
-      description="
-        The trip overview could not be loaded.
-        Please try again.
-      "
+      :title="t('overview.loadErrorTitle')"
+      :description="t('overview.loadErrorDescription')"
       @retry="retry"
     />
 
@@ -86,9 +84,7 @@ const retry = async () => {
             color="neutral"
             variant="ghost"
             size="sm"
-          >
-            Trips
-          </UButton>
+          >{{ t('navigation.trips') }}</UButton>
 
           <h1
             class="mt-5 break-words text-2xl font-semibold tracking-tight sm:text-3xl"
@@ -132,9 +128,7 @@ const retry = async () => {
           color="neutral"
           variant="soft"
           class="self-start"
-        >
-          Trip settings
-        </UButton>
+        >{{ t('trip.settings') }}</UButton>
       </div>
 
       <TripNavigation :trip-id="tripId" />

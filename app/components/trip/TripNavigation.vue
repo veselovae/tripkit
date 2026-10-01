@@ -1,21 +1,22 @@
 <script setup lang="ts">
+const { t } = useI18n();
 const props = defineProps<{ tripId: string }>();
 
 const route = useRoute();
 
 const items = computed(() => [
   {
-    label: "Overview",
+    label: t('navigation.overview'),
     icon: "i-lucide-layout-dashboard",
     to: `/trips/${props.tripId}`,
   },
   {
-    label: "Checklist",
+    label: t('navigation.checklist'),
     icon: "i-lucide-list-checks",
     to: `/trips/${props.tripId}/checklist`,
   },
   {
-    label: "Bookings",
+    label: t('navigation.bookings'),
     icon: "i-lucide-calendar-days",
     to: `/trips/${props.tripId}/bookings`,
   },

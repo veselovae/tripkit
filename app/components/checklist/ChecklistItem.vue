@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { ChecklistItem } from "~~/shared/types/checklist";
 
 const props = defineProps<{ item: ChecklistItem }>();
@@ -50,12 +51,12 @@ const save = async () => {
 
     editing.value = false;
 
-    toast.add({ title: "Item updated", icon: "i-lucide-check" });
+    toast.add({ title: t('checklist.itemUpdated'), icon: "i-lucide-check" });
 
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not update item",
+      title: t('checklist.itemUpdateError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -76,7 +77,7 @@ const toggle = async (completed: boolean) => {
     localCompleted.value = previous;
 
     toast.add({
-      title: "Could not update checklist",
+      title: t('checklist.updateError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -91,12 +92,12 @@ const confirmDelete = async () => {
 
     deleteDialogOpen.value = false;
 
-    toast.add({ title: "Item deleted", icon: "i-lucide-trash-2" });
+    toast.add({ title: t('checklist.itemDeleted'), icon: "i-lucide-trash-2" });
 
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not delete item",
+      title: t('checklist.itemDeleteError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -116,7 +117,7 @@ const confirmDelete = async () => {
       variant="ghost"
       size="xs"
       class="item-drag-handle cursor-grab opacity-50 active:cursor-grabbing sm:opacity-0 sm:group-hover:opacity-100"
-      aria-label="Reorder item"
+      :aria-label="t('checklist.reorderItem')"
     />
 
     <UCheckbox
@@ -136,7 +137,7 @@ const confirmDelete = async () => {
         icon="i-lucide-check"
         size="xs"
         :loading="saving"
-        aria-label="Save item"
+        :aria-label="t('checklist.saveItem')"
       />
 
       <UButton
@@ -146,7 +147,7 @@ const confirmDelete = async () => {
         color="neutral"
         variant="ghost"
         :disabled="saving"
-        aria-label="Cancel editing"
+        :aria-label="t('common.cancelEditing')"
         @click="cancelEditing"
       />
     </form>
@@ -169,7 +170,7 @@ const confirmDelete = async () => {
           color="neutral"
           variant="ghost"
           size="xs"
-          aria-label="Edit item"
+          :aria-label="t('checklist.editItem')"
           @click="startEditing"
         />
 
@@ -178,7 +179,7 @@ const confirmDelete = async () => {
           color="error"
           variant="ghost"
           size="xs"
-          aria-label="Delete item"
+          :aria-label="t('checklist.deleteItem')"
           @click="deleteDialogOpen = true"
         />
       </div>
@@ -186,9 +187,9 @@ const confirmDelete = async () => {
 
     <ConfirmDialog
       v-model:open="deleteDialogOpen"
-      title="Delete checklist item?"
-      :description="`Delete &quot;${item.title}&quot; from this checklist?`"
-      confirm-label="Delete item"
+      :title="t('checklist.deleteItemTitle')"
+      :description="t('checklist.deleteItemDescription', { title: item.title })"
+      :confirm-label="t('checklist.deleteItem')"
       :loading="deleting"
       @confirm="confirmDelete"
     />

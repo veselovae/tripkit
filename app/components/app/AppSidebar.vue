@@ -1,11 +1,12 @@
 <script setup lang="ts">
-const navigation = [
+const { t } = useI18n();
+const navigation = computed(() => [
   {
-    label: "Trips",
+    label: t('navigation.trips'),
     icon: "i-lucide-map",
     to: "/trips",
   },
-];
+]);
 </script>
 
 <template>
@@ -31,7 +32,7 @@ const navigation = [
       <UButton
         to="/settings"
         icon="i-lucide-settings"
-        label="Settings"
+        :label="t('common.settings')"
         color="neutral"
         variant="ghost"
         class="w-full justify-start"

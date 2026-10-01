@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 defineProps<{ tripId: string }>();
 </script>
 
@@ -6,7 +7,7 @@ defineProps<{ tripId: string }>();
   <UCard>
     <div class="flex items-center gap-2">
       <UIcon name="i-lucide-zap" class="size-5" />
-      <h2 class="font-semibold">Quick actions</h2>
+      <h2 class="font-semibold">{{ t('overview.quickActions') }}</h2>
     </div>
 
     <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -16,9 +17,7 @@ defineProps<{ tripId: string }>();
         color="neutral"
         variant="soft"
         block
-      >
-        Checklist
-      </UButton>
+      >{{ t('navigation.checklist') }}</UButton>
 
       <UButton
         :to="`/trips/${tripId}/bookings`"
@@ -26,9 +25,7 @@ defineProps<{ tripId: string }>();
         color="neutral"
         variant="soft"
         block
-      >
-        Bookings
-      </UButton>
+      >{{ t('navigation.bookings') }}</UButton>
     </div>
   </UCard>
 </template>

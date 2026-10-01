@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 const { user, logout } = useAuth();
 </script>
 
@@ -11,11 +12,13 @@ const { user, logout } = useAuth();
     </div>
 
     <div class="hidden lg:block">
-      <span class="text-sm text-muted"> Travel planner </span>
+      <span class="text-sm text-muted">{{ t('header.tagline') }}</span>
     </div>
 
     <div class="flex items-center gap-3">
-      <UButton icon="i-lucide-plus" label="New trip" to="/trips/new" />
+      <LanguageSwitcher />
+
+      <UButton icon="i-lucide-plus" :label="t('header.newTrip')" to="/trips/new" />
 
       <div class="flex items-center gap-3">
         <div v-if="user" class="hidden text-right sm:block">
@@ -32,7 +35,7 @@ const { user, logout } = useAuth();
           icon="i-lucide-log-out"
           color="neutral"
           variant="ghost"
-          aria-label="Log out"
+          :aria-label="t('common.logout')"
           @click="logout"
         />
       </div>

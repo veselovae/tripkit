@@ -1,16 +1,10 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
+const { t } = useI18n();
+defineProps<{
     title?: string;
     description?: string;
     retryLabel?: string;
-  }>(),
-  {
-    title: "Something went wrong",
-    description: "We could not load this data.",
-    retryLabel: "Try again",
-  },
-);
+}>();
 
 const emit = defineEmits<{ retry: [] }>();
 </script>
@@ -26,11 +20,11 @@ const emit = defineEmits<{ retry: [] }>();
     </div>
 
     <h2 class="mt-4 font-semibold">
-      {{ title }}
+      {{ title ?? t('common.somethingWentWrong') }}
     </h2>
 
     <p class="mt-2 max-w-sm text-sm leading-6 text-muted">
-      {{ description }}
+      {{ description ?? t('common.loadError') }}
     </p>
 
     <UButton
@@ -40,7 +34,7 @@ const emit = defineEmits<{ retry: [] }>();
       variant="soft"
       @click="emit('retry')"
     >
-      {{ retryLabel }}
+      {{ retryLabel ?? t('common.retry') }}
     </UButton>
   </div>
 </template>

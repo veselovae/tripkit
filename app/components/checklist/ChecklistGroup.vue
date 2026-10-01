@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { ChecklistGroupWithItems } from "~~/shared/types/checklist";
 import { VueDraggable } from "vue-draggable-plus";
 
@@ -57,12 +58,12 @@ const saveGroup = async () => {
 
     editingGroup.value = false;
 
-    toast.add({ title: "Group updated", icon: "i-lucide-check" });
+    toast.add({ title: t('checklist.groupUpdated'), icon: "i-lucide-check" });
 
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not update group",
+      title: t('checklist.groupUpdateError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -83,12 +84,12 @@ const addItem = async () => {
 
     newItem.value = "";
 
-    toast.add({ title: "Item added", icon: "i-lucide-plus" });
+    toast.add({ title: t('checklist.itemAdded'), icon: "i-lucide-plus" });
 
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not add item",
+      title: t('checklist.itemAddError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -105,12 +106,12 @@ const confirmDeleteGroup = async () => {
 
     deleteDialogOpen.value = false;
 
-    toast.add({ title: "Group deleted", icon: "i-lucide-trash-2" });
+    toast.add({ title: t('checklist.groupDeleted'), icon: "i-lucide-trash-2" });
 
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not delete group",
+      title: t('checklist.groupDeleteError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -131,7 +132,7 @@ const saveItemsOrder = async () => {
     emit("refresh");
   } catch {
     toast.add({
-      title: "Could not save item order",
+      title: t('checklist.orderError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -154,9 +155,7 @@ const saveItemsOrder = async () => {
             variant="ghost"
             size="xs"
             class="group-drag-handle mt-1 cursor-grab active:cursor-grabbing"
-            aria-label="
-              Reorder group
-            "
+            :aria-label="t('checklist.reorderGroup')"
           />
 
           <div
@@ -200,10 +199,7 @@ const saveItemsOrder = async () => {
             </h2>
 
             <p class="mt-1 text-xs text-muted">
-              {{ localItems.filter((item) => item.completed).length }}
-              /
-              {{ localItems.length }}
-              completed
+              {{ t('checklist.completed', { completed: localItems.filter((item) => item.completed).length, total: localItems.length }) }}
             </p>
           </div>
         </div>
@@ -216,9 +212,7 @@ const saveItemsOrder = async () => {
             color="neutral"
             variant="ghost"
             size="xs"
-            aria-label="
-              Edit group
-            "
+            :aria-label="t('checklist.editGroup')"
             @click="startEditingGroup"
           />
 
@@ -229,9 +223,7 @@ const saveItemsOrder = async () => {
             color="error"
             variant="ghost"
             size="xs"
-            aria-label="
-              Delete group
-            "
+            :aria-label="t('checklist.deleteGroup')"
             @click="deleteDialogOpen = true"
           />
         </div>
@@ -258,22 +250,16 @@ const saveItemsOrder = async () => {
       class="mt-3 flex gap-2 border-t border-default pt-4"
       @submit.prevent="addItem"
     >
-      <UInput v-model="newItem" placeholder="Add item..." class="flex-1" />
+      <UInput v-model="newItem" :placeholder="t('checklist.itemPlaceholder')" class="flex-1" />
 
-      <UButton type="submit" icon="i-lucide-plus" :loading="adding">
-        Add
-      </UButton>
+      <UButton type="submit" icon="i-lucide-plus" :loading="adding">{{ t('common.add') }}</UButton>
     </form>
 
     <ConfirmDialog
       v-model:open="deleteDialogOpen"
-      title="
-        Delete checklist group?
-      "
-      :description="`Delete &quot;${group.title}&quot; and all items inside it?`"
-      confirm-label="
-        Delete group
-      "
+      :title="t('checklist.deleteGroupTitle')"
+      :description="t('checklist.deleteGroupDescription', { title: group.title })"
+      :confirm-label="t('checklist.deleteGroup')"
       :loading="deletingGroup"
       @confirm="confirmDeleteGroup"
     />

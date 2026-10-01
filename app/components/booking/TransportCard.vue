@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t, locale } = useI18n();
 import type { Transport } from "~~/shared/types/transport";
 
 import { transportIcons } from "~/utils/transportTypes";
@@ -32,7 +33,7 @@ const emit = defineEmits<{
         >
           <div>
             <div class="text-xs font-medium uppercase tracking-wide text-muted">
-              {{ transport.type }}
+              {{ t(`transport.${transport.type}`) }}
             </div>
 
             <h3 class="mt-1 text-lg font-semibold">
@@ -45,9 +46,7 @@ const emit = defineEmits<{
                 {{ transport.number }}
               </template>
 
-              <template v-if="!transport.provider && !transport.number">
-                Transport
-              </template>
+              <template v-if="!transport.provider && !transport.number">{{ t('bookings.transport') }}</template>
             </h3>
           </div>
 
@@ -79,7 +78,7 @@ const emit = defineEmits<{
             </div>
 
             <div class="mt-1 text-sm text-muted">
-              {{ formatDateTime(transport.departureAt) }}
+              {{ formatDateTime(transport.departureAt, locale) }}
             </div>
           </div>
 
@@ -94,7 +93,7 @@ const emit = defineEmits<{
             </div>
 
             <div v-if="transport.arrivalAt" class="mt-1 text-sm text-muted">
-              {{ formatDateTime(transport.arrivalAt) }}
+              {{ formatDateTime(transport.arrivalAt, locale) }}
             </div>
           </div>
         </div>
@@ -108,24 +107,16 @@ const emit = defineEmits<{
           "
           class="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-default pt-4 text-sm text-muted"
         >
-          <span v-if="transport.departureTerminal">
-            Departure:
-            {{ transport.departureTerminal }}
+          <span v-if="transport.departureTerminal">{{ t('transport.departure') }}: {{ transport.departureTerminal }}
           </span>
 
-          <span v-if="transport.arrivalTerminal">
-            Arrival:
-            {{ transport.arrivalTerminal }}
+          <span v-if="transport.arrivalTerminal">{{ t('transport.arrival') }}: {{ transport.arrivalTerminal }}
           </span>
 
-          <span v-if="transport.seat">
-            Seat:
-            {{ transport.seat }}
+          <span v-if="transport.seat">{{ t('overview.seat') }}: {{ transport.seat }}
           </span>
 
-          <span v-if="transport.bookingReference">
-            Booking:
-            {{ transport.bookingReference }}
+          <span v-if="transport.bookingReference">{{ t('overview.booking') }}: {{ transport.bookingReference }}
           </span>
         </div>
 

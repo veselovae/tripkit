@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t, locale } = useI18n();
 import type { Transport } from "~~/shared/types/transport";
 
 import { transportIcons } from "~/utils/transportTypes";
@@ -14,7 +15,7 @@ defineProps<{
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <UIcon name="i-lucide-route" class="size-5" />
-        <h2 class="font-semibold">Next transport</h2>
+        <h2 class="font-semibold">{{ t('overview.nextTransport') }}</h2>
       </div>
 
       <UButton
@@ -24,9 +25,7 @@ defineProps<{
         size="xs"
         trailing-icon="i-lucide-arrow-right"
         class="justify-center text-center"
-      >
-        All bookings
-      </UButton>
+      >{{ t('overview.allBookings') }}</UButton>
     </div>
 
     <div v-if="transport" class="mt-5">
@@ -42,7 +41,7 @@ defineProps<{
 
         <div class="min-w-0">
           <div class="text-xs font-medium uppercase tracking-wide text-muted">
-            {{ transport.type }}
+            {{ t(`transport.${transport.type}`) }}
           </div>
 
           <div class="mt-1 font-semibold">
@@ -56,9 +55,7 @@ defineProps<{
               {{ transport.number }}
             </template>
 
-            <template v-if="!transport.provider && !transport.number">
-              Transport
-            </template>
+            <template v-if="!transport.provider && !transport.number">{{ t('bookings.transport') }}</template>
           </div>
         </div>
       </div>
@@ -70,7 +67,7 @@ defineProps<{
           </div>
 
           <div class="mt-1 text-sm text-muted">
-            {{ formatDateTime(transport.departureAt) }}
+            {{ formatDateTime(transport.departureAt, locale) }}
           </div>
         </div>
 
@@ -85,7 +82,7 @@ defineProps<{
           </div>
 
           <div v-if="transport.arrivalAt" class="mt-1 text-sm text-muted">
-            {{ formatDateTime(transport.arrivalAt) }}
+            {{ formatDateTime(transport.arrivalAt, locale) }}
           </div>
         </div>
       </div>
@@ -97,16 +94,14 @@ defineProps<{
     >
       <UIcon name="i-lucide-plane" class="mx-auto size-7 text-muted" />
 
-      <p class="mt-2 text-sm text-muted">No transport added yet.</p>
+      <p class="mt-2 text-sm text-muted">{{ t('overview.noTransport') }}</p>
 
       <UButton
         :to="`/trips/${tripId}/bookings`"
         class="mt-4"
         size="sm"
         variant="soft"
-      >
-        Add transport
-      </UButton>
+      >{{ t('overview.addTransport') }}</UButton>
     </div>
   </UCard>
 </template>

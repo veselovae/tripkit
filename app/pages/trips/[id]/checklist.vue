@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import { useChecklist } from "~/composables/useChecklist";
 import type { ChecklistGroupWithItems } from "~~/shared/types/checklist";
 import { checklistIcons } from "~/utils/checklistIcons";
@@ -114,6 +115,9 @@ const loadError = computed(() =>
   (!trip.value && tripError.value) || (!dataLoaded.value && dataError.value),
 );
 const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
+const localizedOptions = computed(() => checklistIcons.map((item) => ({
+  ...item, label: t(`checklist.icons.${item.value}`),
+})));
 </script>
 
 <template>
@@ -121,7 +125,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
     <TripPageSkeleton v-if="loading" />
     <AppErrorState
       v-else-if="loadError"
-      title="Could not load checklist"
+      :title="t('checklist.loadErrorTitle')"
       @retry="retryLoad"
     />
     <template v-else-if="trip">
@@ -131,9 +135,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
         color="neutral"
         variant="ghost"
         class="mb-6"
-      >
-        Back to trip
-      </UButton>
+      >{{ t('trip.back') }}</UButton>
 
       <div class="mb-6">
         <h1 class="text-3xl font-semibold">
@@ -150,13 +152,10 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
       <UCard class="mb-8">
         <div class="flex items-center justify-between gap-4">
           <div>
-            <div class="font-medium">Checklist progress</div>
+            <div class="font-medium">{{ t('checklist.progress') }}</div>
 
             <div class="mt-1 text-sm text-muted">
-              {{ completedItems }}
-              of
-              {{ totalItems }}
-              completed
+              {{ t('checklist.completed', { completed: completedItems, total: totalItems }) }}
             </div>
           </div>
 
@@ -167,28 +166,26 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
       </UCard>
 
       <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end">
-        <UFormField label="New group" class="flex-1">
+        <UFormField :label="t('checklist.newGroup')" class="flex-1">
           <UInput
             v-model="groupForm.title"
-            placeholder="Documents"
+            :placeholder="t('navigation.documents')"
             class="w-full"
           />
         </UFormField>
 
-        <UFormField label="Icon">
+        <UFormField :label="t('checklist.icon')">
           <USelect
             v-model="groupForm.icon"
             :icon="`i-lucide-${groupForm.icon}`"
-            :items="checklistIcons"
+            :items="localizedOptions"
             value-key="value"
             label-key="label"
             class="w-48"
           />
         </UFormField>
 
-        <UButton icon="i-lucide-plus" :loading="creatingGroup" @click="addGroup">
-          Add group
-        </UButton>
+        <UButton icon="i-lucide-plus" :loading="creatingGroup" @click="addGroup">{{ t('checklist.addGroup') }}</UButton>
       </div>
 
       <VueDraggable
@@ -213,11 +210,9 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
       >
         <UIcon name="i-lucide-list-checks" class="mb-4 size-10 text-muted" />
 
-        <h2 class="font-medium">Your checklist is empty</h2>
+        <h2 class="font-medium">{{ t('checklist.emptyTitle') }}</h2>
 
-        <p class="mt-2 max-w-sm text-sm text-muted">
-          Start from our travel template or create your own groups.
-        </p>
+        <p class="mt-2 max-w-sm text-sm text-muted">{{ t('checklist.emptyDescription') }}</p>
 
         <UButton
           icon="i-lucide-sparkles"
@@ -225,9 +220,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
           class="mt-6"
           :loading="applyingTemplate"
           @click="useStarterTemplate"
-        >
-          Use starter checklist
-        </UButton>
+        >{{ t('checklist.starterTemplate') }}</UButton>
       </div>
     </template>
   </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { Trip } from "~~/shared/types/trip";
 
 definePageMeta({ middleware: "auth" });
@@ -43,10 +44,10 @@ const save = async () => {
   try {
     await updateTrip(tripId, form);
 
-    toast.add({ title: "Trip updated", icon: "i-lucide-circle-check" });
+    toast.add({ title: t('trip.updated'), icon: "i-lucide-circle-check" });
   } catch {
     toast.add({
-      title: "Could not update trip",
+      title: t('trip.updateError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -61,12 +62,12 @@ const confirmDeleteTrip = async () => {
   try {
     await deleteTrip(tripId);
 
-    toast.add({ title: "Trip deleted", icon: "i-lucide-trash-2" });
+    toast.add({ title: t('trip.deleted'), icon: "i-lucide-trash-2" });
 
     await navigateTo("/trips");
   } catch {
     toast.add({
-      title: "Could not delete trip",
+      title: t('trip.deleteError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -81,7 +82,7 @@ const confirmDeleteTrip = async () => {
     <TripPageSkeleton v-if="loading" form />
     <AppErrorState
       v-else-if="loadError"
-      title="Could not load trip settings"
+      :title="t('trip.settingsLoadError')"
       @retry="retryLoad"
     />
     <template v-else-if="trip">
@@ -91,44 +92,40 @@ const confirmDeleteTrip = async () => {
         color="neutral"
         variant="ghost"
         class="mb-6"
-      >
-        Back to trip
-      </UButton>
+      >{{ t('trip.back') }}</UButton>
 
       <div class="mb-6">
-        <h1 class="text-3xl font-semibold">Trip settings</h1>
+        <h1 class="text-3xl font-semibold">{{ t('trip.settings') }}</h1>
 
-        <p class="mt-1 text-muted">Update your trip information.</p>
+        <p class="mt-1 text-muted">{{ t('trip.settingsDescription') }}</p>
       </div>
 
       <UCard>
         <form class="space-y-6" @submit.prevent="save">
-          <UFormField label="Trip name">
+          <UFormField :label="t('trip.name')">
             <UInput v-model="form.title" class="w-full" />
           </UFormField>
 
-          <UFormField label="Destination">
+          <UFormField :label="t('trip.destination')">
             <UInput v-model="form.destination" class="w-full" />
           </UFormField>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <UFormField label="Start date">
+            <UFormField :label="t('trip.startDate')">
               <UInput v-model="form.startDate" type="date" class="w-full" />
             </UFormField>
 
-            <UFormField label="End date">
+            <UFormField :label="t('trip.endDate')">
               <UInput v-model="form.endDate" type="date" class="w-full" />
             </UFormField>
           </div>
 
-          <UFormField label="Description">
+          <UFormField :label="t('trip.description')">
             <UTextarea v-model="form.description" :rows="5" class="w-full" />
           </UFormField>
 
           <div class="flex justify-end">
-            <UButton type="submit" icon="i-lucide-save" :loading="saving">
-              Save changes
-            </UButton>
+            <UButton type="submit" icon="i-lucide-save" :loading="saving">{{ t('common.saveChanges') }}</UButton>
           </div>
         </form>
       </UCard>
@@ -138,9 +135,9 @@ const confirmDeleteTrip = async () => {
           class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h2 class="font-medium">Delete trip</h2>
+            <h2 class="font-medium">{{ t('trip.delete') }}</h2>
 
-            <p class="mt-1 text-sm text-muted">This action cannot be undone.</p>
+            <p class="mt-1 text-sm text-muted">{{ t('common.actionCannotBeUndone') }}</p>
           </div>
 
           <UButton
@@ -149,9 +146,7 @@ const confirmDeleteTrip = async () => {
             icon="i-lucide-trash-2"
             :loading="deleting"
             @click="deleteDialogOpen = true"
-          >
-            Delete trip
-          </UButton>
+          >{{ t('trip.delete') }}</UButton>
         </div>
       </UCard>
     </template>
@@ -159,9 +154,9 @@ const confirmDeleteTrip = async () => {
 
   <ConfirmDialog
     v-model:open="deleteDialogOpen"
-    title="Delete trip?"
-    :description="`Delete &quot;${trip?.title ?? 'this trip'}&quot; permanently?`"
-    confirm-label="Delete trip"
+    :title="t('trip.deleteTitle')"
+    :description="t('trip.deleteDescription', { title: trip?.title ?? t('trip.fallbackTitle') })"
+    :confirm-label="t('trip.delete')"
     :loading="deleting"
     @confirm="confirmDeleteTrip"
   />

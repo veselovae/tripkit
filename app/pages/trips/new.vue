@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import { useTrips } from "~/composables/useTrips";
 
 definePageMeta({ middleware: "auth" });
@@ -31,7 +32,7 @@ const handleSubmit = async () => {
 
     await navigateTo(`/trips/${trip.id}`);
   } catch (error: any) {
-    errorMessage.value = error?.data?.statusMessage ?? "Could not create trip";
+    errorMessage.value = t('trip.createError');
   } finally {
     loading.value = false;
   }
@@ -43,52 +44,50 @@ const handleSubmit = async () => {
     <UButton
       to="/trips"
       icon="i-lucide-arrow-left"
-      label="Back to trips"
+      :label="t('trip.backToTrips')"
       color="neutral"
       variant="ghost"
       class="mb-6"
     />
 
     <div class="mb-8">
-      <h1 class="text-2xl font-semibold">Create trip</h1>
+      <h1 class="text-2xl font-semibold">{{ t('trip.create') }}</h1>
 
-      <p class="mt-1 text-sm text-muted">
-        Add the basic details of your journey.
-      </p>
+      <p class="mt-1 text-sm text-muted">{{ t('trip.createDescription') }}</p>
     </div>
 
     <UCard>
       <form class="space-y-6" @submit.prevent="handleSubmit">
-        <UFormField label="Trip name" required>
+        <UFormField :label="t('trip.name')" required>
           <UInput
             v-model="form.title"
-            placeholder="Japan 2027"
+            :placeholder="t('trip.titlePlaceholder')"
             class="w-full"
           />
         </UFormField>
 
-        <UFormField label="Destination" required>
+        <UFormField :label="t('trip.destination')" required>
           <UInput
             v-model="form.destination"
-            placeholder="Tokyo, Japan"
+            :placeholder="t('trip.destinationPlaceholder')"
             class="w-full"
           />
         </UFormField>
 
         <div class="grid gap-4 sm:grid-cols-2">
-          <UFormField label="Start date" required>
+          <UFormField :label="t('trip.startDate')" required>
             <UInput v-model="form.startDate" type="date" class="w-full" />
           </UFormField>
 
-          <UFormField label="End date" required>
+          <UFormField :label="t('trip.endDate')" required>
             <UInput v-model="form.endDate" type="date" class="w-full" />
           </UFormField>
         </div>
 
-        <UFormField label="Description">
+        <UFormField :label="t('trip.description')">
           <UTextarea
             v-model="form.description"
-            placeholder="Optional notes about this trip..."
+            :placeholder="t('trip.descriptionPlaceholder')"
             :rows="5"
             class="w-full"
           />
@@ -96,8 +95,8 @@ const handleSubmit = async () => {
 
         <UCheckbox
           v-model="createStarterChecklist"
-          label="Add starter checklist"
-          description="Creates Documents, Electronics, Clothes and Before trip groups."
+          :label="t('trip.starterChecklist')"
+          :description="t('trip.starterDescription')"
         />
 
         <UAlert
@@ -108,13 +107,9 @@ const handleSubmit = async () => {
         />
 
         <div class="flex justify-end gap-3">
-          <UButton to="/trips" color="neutral" variant="ghost">
-            Cancel
-          </UButton>
+          <UButton to="/trips" color="neutral" variant="ghost">{{ t('common.cancel') }}</UButton>
 
-          <UButton type="submit" icon="i-lucide-plus" :loading="loading">
-            Create trip
-          </UButton>
+          <UButton type="submit" icon="i-lucide-plus" :loading="loading">{{ t('trip.create') }}</UButton>
         </div>
       </form>
     </UCard>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({ layout: "auth", middleware: "guest" });
@@ -20,7 +21,7 @@ const handleSubmit = async () => {
 
     await navigateTo("/trips");
   } catch (error: any) {
-    errorMessage.value = error?.data?.statusMessage ?? "Could not sign in";
+    errorMessage.value = t('auth.loginError');
   }
 };
 </script>
@@ -29,14 +30,14 @@ const handleSubmit = async () => {
   <UCard>
     <template #header>
       <div>
-        <h1 class="text-xl font-semibold">Welcome back</h1>
+        <h1 class="text-xl font-semibold">{{ t('auth.welcome') }}</h1>
 
-        <p class="mt-1 text-sm text-muted">Sign in to continue to TripKit.</p>
+        <p class="mt-1 text-sm text-muted">{{ t('auth.loginDescription') }}</p>
       </div>
     </template>
 
     <form class="space-y-4" @submit.prevent="handleSubmit">
-      <UFormField label="Email">
+      <UFormField :label="t('auth.email')">
         <UInput
           v-model="form.email"
           type="email"
@@ -45,7 +46,7 @@ const handleSubmit = async () => {
         />
       </UFormField>
 
-      <UFormField label="Password">
+      <UFormField :label="t('auth.password')">
         <UInput v-model="form.password" type="password" class="w-full" />
       </UFormField>
 
@@ -56,16 +57,11 @@ const handleSubmit = async () => {
         :description="errorMessage"
       />
 
-      <UButton type="submit" block :loading="loading"> Sign in </UButton>
+      <UButton type="submit" block :loading="loading">{{ t('auth.login') }}</UButton>
     </form>
 
     <template #footer>
-      <p class="text-center text-sm text-muted">
-        Don't have an account?
-
-        <NuxtLink to="/register" class="text-primary hover:underline">
-          Create one
-        </NuxtLink>
+      <p class="text-center text-sm text-muted">{{ t('auth.noAccount') }} <NuxtLink to="/register" class="text-primary hover:underline">{{ t('auth.register') }}</NuxtLink>
       </p>
     </template>
   </UCard>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { Transport, TransportType } from "~~/shared/types/transport";
 import { toDateTimeLocal, toIsoDateTime } from "~/utils/date";
 
@@ -88,75 +89,75 @@ watch(
 const providerLabel = computed(() => {
   switch (form.type) {
     case "flight":
-      return "Airline";
+      return t('transport.airline');
     case "train":
-      return "Operator";
+      return t('transport.operator');
     case "bus":
-      return "Bus company";
+      return t('transport.busCompany');
     case "ferry":
-      return "Ferry company";
+      return t('transport.ferryCompany');
     case "car":
-      return "Provider";
+      return t('transport.provider');
     default:
-      return "Provider";
+      return t('transport.provider');
   }
 });
 
 const numberLabel = computed(() => {
   switch (form.type) {
     case "flight":
-      return "Flight number";
+      return t('transport.flightNumber');
     case "train":
-      return "Train number";
+      return t('transport.trainNumber');
     case "bus":
-      return "Route number";
+      return t('transport.routeNumber');
     default:
-      return "Number";
+      return t('transport.number');
   }
 });
 
 const departureLabel = computed(() => {
   switch (form.type) {
     case "flight":
-      return "Departure airport";
+      return t('transport.departureAirport');
     case "train":
-      return "Departure station";
+      return t('transport.departureStation');
     case "bus":
-      return "Departure stop";
+      return t('transport.departureStop');
     case "ferry":
-      return "Departure port";
+      return t('transport.departurePort');
     default:
-      return "Departure location";
+      return t('transport.departureLocation');
   }
 });
 
 const arrivalLabel = computed(() => {
   switch (form.type) {
     case "flight":
-      return "Arrival airport";
+      return t('transport.arrivalAirport');
     case "train":
-      return "Arrival station";
+      return t('transport.arrivalStation');
     case "bus":
-      return "Arrival stop";
+      return t('transport.arrivalStop');
     case "ferry":
-      return "Arrival port";
+      return t('transport.arrivalPort');
     default:
-      return "Arrival location";
+      return t('transport.arrivalLocation');
   }
 });
 
 const terminalLabel = computed(() => {
   switch (form.type) {
     case "flight":
-      return "Terminal";
+      return t('transport.terminal');
     case "train":
-      return "Platform";
+      return t('transport.platform');
     case "bus":
-      return "Platform / bay";
+      return t('transport.platformBay');
     case "ferry":
-      return "Terminal";
+      return t('transport.terminal');
     default:
-      return "Location detail";
+      return t('transport.locationDetail');
   }
 });
 
@@ -176,14 +177,17 @@ const submit = () => {
     notes: form.notes.trim(),
   });
 };
+const localizedOptions = computed(() => transportTypeOptions.map((item) => ({
+  ...item, label: t(`transport.${item.value}`),
+})));
 </script>
 
 <template>
   <form class="space-y-5" @submit.prevent="submit">
-    <UFormField label="Transport type" required>
+    <UFormField :label="t('transport.type')" required>
       <USelect
         v-model="form.type"
-        :items="transportTypeOptions"
+        :items="localizedOptions"
         value-key="value"
         label-key="label"
         class="w-full"
@@ -211,7 +215,7 @@ const submit = () => {
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <UFormField label="Departure time" required>
+      <UFormField :label="t('transport.departureTime')" required>
         <UInput
           v-model="form.departureAt"
           type="datetime-local"
@@ -219,32 +223,32 @@ const submit = () => {
         />
       </UFormField>
 
-      <UFormField label="Arrival time">
+      <UFormField :label="t('transport.arrivalTime')">
         <UInput v-model="form.arrivalAt" type="datetime-local" class="w-full" />
       </UFormField>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <UFormField :label="`Departure ${terminalLabel}`">
+      <UFormField :label="t('transport.departureDetail', { detail: terminalLabel })">
         <UInput v-model="form.departureTerminal" class="w-full" />
       </UFormField>
 
-      <UFormField :label="`Arrival ${terminalLabel}`">
+      <UFormField :label="t('transport.arrivalDetail', { detail: terminalLabel })">
         <UInput v-model="form.arrivalTerminal" class="w-full" />
       </UFormField>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <UFormField label="Seat">
+      <UFormField :label="t('overview.seat')">
         <UInput v-model="form.seat" class="w-full" />
       </UFormField>
 
-      <UFormField label="Booking reference">
+      <UFormField :label="t('transport.bookingReference')">
         <UInput v-model="form.bookingReference" class="w-full" />
       </UFormField>
     </div>
 
-    <UFormField label="Notes">
+    <UFormField :label="t('transport.notes')">
       <UTextarea v-model="form.notes" :rows="4" class="w-full" />
     </UFormField>
 
@@ -254,11 +258,9 @@ const submit = () => {
         color="neutral"
         variant="ghost"
         @click="emit('cancel')"
-      >
-        Cancel
-      </UButton>
+      >{{ t('common.cancel') }}</UButton>
 
-      <UButton type="submit"> Save transport </UButton>
+      <UButton type="submit">{{ t('transport.save') }}</UButton>
     </div>
   </form>
 </template>

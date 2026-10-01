@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { locale } = useI18n();
+const formatDate = (value: string) => new Intl.DateTimeFormat(locale.value, { dateStyle: "medium" }).format(new Date(`${value}T00:00:00`));
 import type { Trip } from "~~/shared/types/trip";
 
 defineProps<{ trip: Trip }>();
@@ -27,9 +29,9 @@ defineProps<{ trip: Trip }>();
         <UIcon name="i-lucide-calendar" class="size-4" />
 
         <span>
-          {{ trip.startDate }}
+          {{ formatDate(trip.startDate) }}
           —
-          {{ trip.endDate }}
+          {{ formatDate(trip.endDate) }}
         </span>
       </div>
     </UCard>

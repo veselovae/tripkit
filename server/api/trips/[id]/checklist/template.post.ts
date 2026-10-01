@@ -1,6 +1,8 @@
 import { ID, Permission, Query, Role } from "node-appwrite";
 import { createSessionClient } from "~~/server/lib/appwrite";
 import { defaultChecklist } from "~~/shared/data/defaultChecklist";
+import en from "~~/i18n/locales/en.json";
+import ru from "~~/i18n/locales/ru.json";
 
 export default defineEventHandler(async (event) => {
   const user = requireUser(event);
@@ -33,7 +35,13 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  for (const [groupIndex, templateGroup] of defaultChecklist.entries()) {
+  const messages = getCookie(event, "tripkit-locale") === "ru" ? ru : en;
+  const localizedTemplate = defaultChecklist.map((group) => ({
+    ...group,
+    ...messages.starterChecklist[group.icon as keyof typeof messages.starterChecklist],
+  }));
+
+  for (const [groupIndex, templateGroup] of localizedTemplate.entries()) {
     const group = await tablesDB.createRow({
       databaseId: config.appwriteDatabaseId,
       tableId: config.appwriteChecklistGroupsTableId,

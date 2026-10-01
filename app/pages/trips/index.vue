@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { Trip } from "~~/shared/types/trip";
 
 definePageMeta({ middleware: "auth" });
@@ -17,20 +18,18 @@ const {
       class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <h1 class="text-2xl font-semibold">Your trips</h1>
+        <h1 class="text-2xl font-semibold">{{ t('trips.title') }}</h1>
 
-        <p class="mt-1 text-sm text-muted">
-          Plan and organize your adventures.
-        </p>
+        <p class="mt-1 text-sm text-muted">{{ t('trips.subtitle') }}</p>
       </div>
 
-      <UButton to="/trips/new" icon="i-lucide-plus">Create trip</UButton>
+      <UButton to="/trips/new" icon="i-lucide-plus">{{ t('trip.create') }}</UButton>
     </div>
 
     <div
       v-if="!trips && (status === 'idle' || status === 'pending')"
       role="status"
-      aria-label="Loading trips"
+      :aria-label="t('trips.loading')"
       aria-busy="true"
       class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
     >
@@ -39,7 +38,7 @@ const {
 
     <AppErrorState
       v-else-if="error && !trips"
-      title="Could not load trips"
+      :title="t('trips.loadErrorTitle')"
       @retry="refresh()"
     />
 
@@ -49,15 +48,11 @@ const {
     >
       <UIcon name="i-lucide-luggage" class="mb-4 size-10 text-muted" />
 
-      <h2 class="text-lg font-medium">No trips yet</h2>
+      <h2 class="text-lg font-medium">{{ t('trips.emptyTitle') }}</h2>
 
-      <p class="mt-2 max-w-sm text-sm text-muted">
-        Create your first trip and start organizing everything in one place.
-      </p>
+      <p class="mt-2 max-w-sm text-sm text-muted">{{ t('trips.emptyDescription') }}</p>
 
-      <UButton to="/trips/new" icon="i-lucide-plus" class="mt-6">
-        Create your first trip
-      </UButton>
+      <UButton to="/trips/new" icon="i-lucide-plus" class="mt-6">{{ t('trips.createFirst') }}</UButton>
     </div>
 
     <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

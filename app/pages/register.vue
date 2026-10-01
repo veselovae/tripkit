@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({ layout: "auth", middleware: "guest" });
@@ -18,7 +19,7 @@ const handleSubmit = async () => {
   errorMessage.value = "";
 
   if (form.password !== form.confirmPassword) {
-    errorMessage.value = "Passwords do not match";
+    errorMessage.value = t('auth.passwordMismatch');
     return;
   }
 
@@ -32,7 +33,7 @@ const handleSubmit = async () => {
     await navigateTo("/trips");
   } catch (error: any) {
     errorMessage.value =
-      error?.data?.statusMessage ?? "Could not create account";
+      t('auth.registerError');
   }
 };
 </script>
@@ -41,18 +42,18 @@ const handleSubmit = async () => {
   <UCard>
     <template #header>
       <div>
-        <h1 class="text-xl font-semibold">Create an account</h1>
+        <h1 class="text-xl font-semibold">{{ t('auth.register') }}</h1>
 
-        <p class="mt-1 text-sm text-muted">Start planning your next trip.</p>
+        <p class="mt-1 text-sm text-muted">{{ t('auth.registerDescription') }}</p>
       </div>
     </template>
 
     <form class="space-y-4" @submit.prevent="handleSubmit">
-      <UFormField label="Name">
-        <UInput v-model="form.name" placeholder="Jane" class="w-full" />
+      <UFormField :label="t('auth.name')">
+        <UInput v-model="form.name" :placeholder="t('auth.namePlaceholder')" class="w-full" />
       </UFormField>
 
-      <UFormField label="Email">
+      <UFormField :label="t('auth.email')">
         <UInput
           v-model="form.email"
           type="email"
@@ -61,11 +62,11 @@ const handleSubmit = async () => {
         />
       </UFormField>
 
-      <UFormField label="Password">
+      <UFormField :label="t('auth.password')">
         <UInput v-model="form.password" type="password" class="w-full" />
       </UFormField>
 
-      <UFormField label="Confirm password">
+      <UFormField :label="t('auth.confirmPassword')">
         <UInput v-model="form.confirmPassword" type="password" class="w-full" />
       </UFormField>
 
@@ -76,16 +77,11 @@ const handleSubmit = async () => {
         :description="errorMessage"
       />
 
-      <UButton type="submit" block :loading="loading"> Create account </UButton>
+      <UButton type="submit" block :loading="loading">{{ t('auth.register') }}</UButton>
     </form>
 
     <template #footer>
-      <p class="text-center text-sm text-muted">
-        Already have an account?
-
-        <NuxtLink to="/login" class="text-primary hover:underline">
-          Sign in
-        </NuxtLink>
+      <p class="text-center text-sm text-muted">{{ t('auth.alreadyHaveAccount') }} <NuxtLink to="/login" class="text-primary hover:underline">{{ t('auth.login') }}</NuxtLink>
       </p>
     </template>
   </UCard>

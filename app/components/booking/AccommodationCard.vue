@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t, locale } = useI18n();
 import type { Accommodation } from "~~/shared/types/accommodation";
 
 import { accommodationIcons } from "~/utils/accommodationTypes";
@@ -30,7 +31,7 @@ const emit = defineEmits<{
         <div class="flex gap-3 justify-between">
           <div>
             <div class="text-xs font-medium uppercase tracking-wide text-muted">
-              {{ accommodation.type }}
+              {{ t(`accommodation.${accommodation.type}`) }}
             </div>
 
             <h3 class="mt-1 text-lg font-semibold">
@@ -63,18 +64,18 @@ const emit = defineEmits<{
 
         <div class="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <div class="text-xs text-muted">Check-in</div>
+            <div class="text-xs text-muted">{{ t('overview.checkIn') }}</div>
 
             <div class="mt-1 font-medium">
-              {{ formatDateTime(accommodation.checkIn) }}
+              {{ formatDateTime(accommodation.checkIn, locale) }}
             </div>
           </div>
 
           <div>
-            <div class="text-xs text-muted">Check-out</div>
+            <div class="text-xs text-muted">{{ t('overview.checkOut') }}</div>
 
             <div class="mt-1 font-medium">
-              {{ formatDateTime(accommodation.checkOut) }}
+              {{ formatDateTime(accommodation.checkOut, locale) }}
             </div>
           </div>
         </div>
@@ -87,9 +88,7 @@ const emit = defineEmits<{
           "
           class="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-default pt-4 text-sm text-muted"
         >
-          <span v-if="accommodation.bookingReference">
-            Booking:
-            {{ accommodation.bookingReference }}
+          <span v-if="accommodation.bookingReference">{{ t('overview.booking') }}: {{ accommodation.bookingReference }}
           </span>
 
           <span v-if="accommodation.phone">
@@ -102,9 +101,7 @@ const emit = defineEmits<{
             target="_blank"
             rel="noopener noreferrer"
             class="text-primary hover:underline"
-          >
-            Website
-          </a>
+          >{{ t('accommodation.website') }}</a>
         </div>
 
         <p v-if="accommodation.notes" class="mt-4 text-sm text-muted">

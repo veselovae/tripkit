@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 import type { Trip } from "~~/shared/types/trip";
 
 import type { Transport } from "~~/shared/types/transport";
@@ -79,14 +80,14 @@ const saveTransport = async (payload: any) => {
     closeTransportModal();
 
     toast.add({
-      title: isEditing ? "Transport updated" : "Transport added",
+      title: isEditing ? t('bookings.transportUpdated') : t('bookings.transportAdded'),
       icon: "i-lucide-circle-check",
     });
 
     await refresh();
   } catch {
     toast.add({
-      title: "Could not save transport",
+      title: t('bookings.transportSaveError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -108,7 +109,7 @@ const confirmTransportDelete = async () => {
   try {
     await deleteTransport(tripId, transportToDelete.value.id);
 
-    toast.add({ title: "Transport deleted", icon: "i-lucide-trash-2" });
+    toast.add({ title: t('bookings.transportDeleted'), icon: "i-lucide-trash-2" });
 
     transportDeleteDialogOpen.value = false;
     transportToDelete.value = null;
@@ -116,7 +117,7 @@ const confirmTransportDelete = async () => {
     await refresh();
   } catch {
     toast.add({
-      title: "Could not delete transport",
+      title: t('bookings.transportDeleteError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -155,14 +156,14 @@ const saveAccommodation = async (payload: any) => {
     closeAccommodationModal();
 
     toast.add({
-      title: isEditing ? "Accommodation updated" : "Accommodation added",
+      title: isEditing ? t('bookings.accommodationUpdated') : t('bookings.accommodationAdded'),
       icon: "i-lucide-circle-check",
     });
 
     await refresh();
   } catch {
     toast.add({
-      title: "Could not save accommodation",
+      title: t('bookings.accommodationSaveError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -184,7 +185,7 @@ const confirmAccommodationDelete = async () => {
   try {
     await deleteAccommodation(tripId, accommodationToDelete.value.id);
 
-    toast.add({ title: "Accommodation deleted", icon: "i-lucide-trash-2" });
+    toast.add({ title: t('bookings.accommodationDeleted'), icon: "i-lucide-trash-2" });
 
     accommodationDeleteDialogOpen.value = false;
     accommodationToDelete.value = null;
@@ -192,7 +193,7 @@ const confirmAccommodationDelete = async () => {
     await refresh();
   } catch {
     toast.add({
-      title: "Could not delete accommodation",
+      title: t('bookings.accommodationDeleteError'),
       color: "error",
       icon: "i-lucide-circle-alert",
     });
@@ -220,7 +221,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
     <TripPageSkeleton v-if="loading" />
     <AppErrorState
       v-else-if="loadError"
-      title="Could not load bookings"
+      :title="t('bookings.loadErrorTitle')"
       @retry="retryLoad"
     />
     <template v-else-if="trip">
@@ -230,9 +231,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
         color="neutral"
         variant="ghost"
         class="mb-6"
-      >
-        Back to trip
-      </UButton>
+      >{{ t('trip.back') }}</UButton>
 
       <div class="mb-6">
         <h1 class="text-3xl font-semibold">
@@ -247,23 +246,19 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
       <TripNavigation :trip-id="tripId" />
 
       <div class="mb-8 flex flex-wrap gap-3">
-        <UButton icon="i-lucide-plane" @click="openCreateTransport">
-          Add transport
-        </UButton>
+        <UButton icon="i-lucide-plane" @click="openCreateTransport">{{ t('overview.addTransport') }}</UButton>
 
         <UButton
           icon="i-lucide-hotel"
           color="neutral"
           variant="soft"
           @click="openCreateAccommodation"
-        >
-          Add accommodation
-        </UButton>
+        >{{ t('overview.addAccommodation') }}</UButton>
       </div>
 
       <section class="mb-10">
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Transport</h2>
+          <h2 class="text-xl font-semibold">{{ t('bookings.transport') }}</h2>
 
           <span class="text-sm text-muted">
             {{ bookings?.transport.length ?? 0 }}
@@ -286,26 +281,22 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
         >
           <UIcon name="i-lucide-plane" class="mx-auto mb-3 size-8 text-muted" />
 
-          <h3 class="font-medium">No transport yet</h3>
+          <h3 class="font-medium">{{ t('bookings.noTransportTitle') }}</h3>
 
-          <p class="mt-1 text-sm text-muted">
-            Add your flight, train or other transport.
-          </p>
+          <p class="mt-1 text-sm text-muted">{{ t('bookings.noTransportDescription') }}</p>
 
           <UButton
             class="mt-5"
             variant="soft"
             icon="i-lucide-plus"
             @click="openCreateTransport"
-          >
-            Add transport
-          </UButton>
+          >{{ t('overview.addTransport') }}</UButton>
         </div>
       </section>
 
       <section>
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Accommodation</h2>
+          <h2 class="text-xl font-semibold">{{ t('overview.accommodation') }}</h2>
 
           <span class="text-sm text-muted">
             {{ bookings?.accommodations.length ?? 0 }}
@@ -328,11 +319,9 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
         >
           <UIcon name="i-lucide-hotel" class="mx-auto mb-3 size-8 text-muted" />
 
-          <h3 class="font-medium">No accommodation yet</h3>
+          <h3 class="font-medium">{{ t('bookings.noAccommodationTitle') }}</h3>
 
-          <p class="mt-1 text-sm text-muted">
-            Add your hotel, apartment or hostel.
-          </p>
+          <p class="mt-1 text-sm text-muted">{{ t('bookings.noAccommodationDescription') }}</p>
 
           <UButton
             class="mt-5"
@@ -340,15 +329,13 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
             variant="soft"
             icon="i-lucide-plus"
             @click="openCreateAccommodation"
-          >
-            Add accommodation
-          </UButton>
+          >{{ t('overview.addAccommodation') }}</UButton>
         </div>
       </section>
 
       <UModal
         v-model:open="transportModalOpen"
-        :title="editingTransport ? 'Edit transport' : 'Add transport'"
+        :title="editingTransport ? t('bookings.editTransport') : t('overview.addTransport')"
       >
         <template #body>
           <TransportForm
@@ -361,7 +348,7 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
 
       <UModal
         v-model:open="accommodationModalOpen"
-        :title="editingAccommodation ? 'Edit accommodation' : 'Add accommodation'"
+        :title="editingAccommodation ? t('bookings.editAccommodation') : t('overview.addAccommodation')"
       >
         <template #body>
           <AccommodationForm
@@ -374,30 +361,18 @@ const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
 
       <ConfirmDialog
         v-model:open="transportDeleteDialogOpen"
-        title="Delete transport?"
-        :description="
-          transportToDelete
-            ? `Delete ${
-                transportToDelete.provider ||
-                transportToDelete.number ||
-                transportToDelete.type
-              } from this trip?`
-            : ''
-        "
-        confirm-label="Delete transport"
+        :title="t('bookings.deleteTransportTitle')"
+        :description="transportToDelete ? t('bookings.deleteTransportDescription', { name: transportToDelete.provider || transportToDelete.number || t(`transport.${transportToDelete.type}`) }) : ''"
+        :confirm-label="t('bookings.deleteTransport')"
         :loading="deletingTransport"
         @confirm="confirmTransportDelete"
       />
 
       <ConfirmDialog
         v-model:open="accommodationDeleteDialogOpen"
-        title="Delete accommodation?"
-        :description="
-          accommodationToDelete
-            ? `Delete &quot;${accommodationToDelete.name}&quot; from this trip?`
-            : ''
-        "
-        confirm-label="Delete accommodation"
+        :title="t('bookings.deleteAccommodationTitle')"
+        :description="accommodationToDelete ? t('bookings.deleteAccommodationDescription', { name: accommodationToDelete.name }) : ''"
+        :confirm-label="t('bookings.deleteAccommodation')"
         :loading="deletingAccommodation"
         @confirm="confirmAccommodationDelete"
       />

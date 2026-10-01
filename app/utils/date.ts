@@ -1,7 +1,10 @@
 import { format } from "date-fns";
+import { enUS, ru } from "date-fns/locale";
 
-export const formatDateTime = (value: string) => {
-  return format(new Date(value), "dd MMM yyyy, HH:mm");
+export const formatDateTime = (value: string, locale = "en") => {
+  return format(new Date(value), "dd MMM yyyy, HH:mm", {
+    locale: locale === "ru" ? ru : enUS,
+  });
 };
 
 export const toIsoDateTime = (value: string) => {

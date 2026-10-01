@@ -1,10 +1,11 @@
 <script setup lang="ts">
+const { t } = useI18n();
 withDefaults(defineProps<{ form?: boolean }>(), { form: false });
 </script>
 
 <template>
-  <div role="status" aria-busy="true" aria-label="Loading trip">
-    <span class="sr-only">Loading trip…</span>
+  <div role="status" aria-busy="true" :aria-label="t('trip.loading')">
+    <span class="sr-only">{{ t('trip.loading') }}</span>
     <div aria-hidden="true">
       <USkeleton class="mb-6 h-8 w-28" />
       <USkeleton class="h-9 w-64 max-w-full" />

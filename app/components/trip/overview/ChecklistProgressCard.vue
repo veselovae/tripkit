@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 defineProps<{
   tripId: string;
   total: number;
@@ -13,14 +14,11 @@ defineProps<{
       <div>
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-list-checks" class="size-5" />
-          <h2 class="font-semibold">Checklist</h2>
+          <h2 class="font-semibold">{{ t('navigation.checklist') }}</h2>
         </div>
 
         <p class="mt-2 text-sm text-muted">
-          {{ completed }}
-          of
-          {{ total }}
-          completed
+          {{ t('overview.completed', { completed, total }) }}
         </p>
       </div>
 
@@ -36,9 +34,7 @@ defineProps<{
         variant="soft"
         trailing-icon="i-lucide-arrow-right"
         class="justify-center text-center"
-      >
-        Open checklist
-      </UButton>
+      >{{ t('overview.openChecklist') }}</UButton>
     </div>
   </UCard>
 </template>

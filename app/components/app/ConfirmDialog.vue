@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n();
 withDefaults(
   defineProps<{
     open: boolean;
@@ -9,8 +10,6 @@ withDefaults(
     loading?: boolean;
   }>(),
   {
-    confirmLabel: "Delete",
-    cancelLabel: "Cancel",
     loading: false,
   },
 );
@@ -45,9 +44,7 @@ const close = () => {
               {{ description }}
             </p>
 
-            <p class="mt-2 text-sm font-medium">
-              This action cannot be undone.
-            </p>
+            <p class="mt-2 text-sm font-medium">{{ t('common.actionCannotBeUndone') }}</p>
           </div>
         </div>
 
@@ -58,11 +55,11 @@ const close = () => {
             :disabled="loading"
             @click="close"
           >
-            {{ cancelLabel }}
+            {{ cancelLabel ?? t('common.cancel') }}
           </UButton>
 
           <UButton color="error" :loading="loading" @click="emit('confirm')">
-            {{ confirmLabel }}
+            {{ confirmLabel ?? t('common.delete') }}
           </UButton>
         </div>
       </div>
