@@ -20,15 +20,19 @@ export const useBookings = () => {
     });
   };
 
-  const updateTransport = (id: string, input: UpdateTransportInput) => {
-    return $fetch<Transport>(`/api/bookings/transport/${id}`, {
+  const updateTransport = (
+    tripId: string,
+    id: string,
+    input: UpdateTransportInput,
+  ) => {
+    return $fetch<Transport>(`/api/trips/${tripId}/bookings/transport/${id}`, {
       method: "PATCH",
       body: input,
     });
   };
 
-  const deleteTransport = (id: string) => {
-    return $fetch(`/api/bookings/transport/${id}`, {
+  const deleteTransport = (tripId: string, id: string) => {
+    return $fetch(`/api/trips/${tripId}/bookings/transport/${id}`, {
       method: "DELETE",
     });
   };
@@ -46,15 +50,22 @@ export const useBookings = () => {
     );
   };
 
-  const updateAccommodation = (id: string, input: UpdateAccommodationInput) => {
-    return $fetch<Accommodation>(`/api/bookings/accommodation/${id}`, {
-      method: "PATCH",
-      body: input,
-    });
+  const updateAccommodation = (
+    tripId: string,
+    id: string,
+    input: UpdateAccommodationInput,
+  ) => {
+    return $fetch<Accommodation>(
+      `/api/trips/${tripId}/bookings/accommodation/${id}`,
+      {
+        method: "PATCH",
+        body: input,
+      },
+    );
   };
 
-  const deleteAccommodation = (id: string) => {
-    return $fetch(`/api/bookings/accommodation/${id}`, {
+  const deleteAccommodation = (tripId: string, id: string) => {
+    return $fetch(`/api/trips/${tripId}/bookings/accommodation/${id}`, {
       method: "DELETE",
     });
   };

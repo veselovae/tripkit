@@ -1,22 +1,56 @@
 <script setup lang="ts">
-defineProps<{ tripId: string }>();
+const props = defineProps<{ tripId: string }>();
+
+const route = useRoute();
+
+const items = computed(() => [
+  {
+    label: "Overview",
+    icon: "i-lucide-layout-dashboard",
+    to: `/trips/${props.tripId}`,
+  },
+  {
+    label: "Checklist",
+    icon: "i-lucide-list-checks",
+    to: `/trips/${props.tripId}/checklist`,
+  },
+  {
+    label: "Bookings",
+    icon: "i-lucide-calendar-days",
+    to: `/trips/${props.tripId}/bookings`,
+  },
+]);
+
+const isActive = (to: string) => {
+  if (to === `/trips/${props.tripId}`) return route.path === to;
+
+  return route.path.startsWith(to);
+};
 </script>
 
 <template>
-  <nav class="mb-8 flex gap-1 overflow-x-auto border-b border-default">
-    <UButton :to="`/trips/${tripId}`" color="neutral" variant="ghost">
-      Overview
+  <nav class="mb-8 flex flex-wrap gap-1 border-b border-default">
+    <UButton
+      v-for="item in items"
+      :key="item.to"
+      :to="item.to"
+      :icon="item.icon"
+      color="neutral"
+      variant="ghost"
+      class="relative shrink-0 rounded-b-none"
+      :class="{
+        'text-primary': isActive(item.to),
+      }"
+    >
+      {{ item.label }}
+
+      <span
+        v-if="isActive(item.to)"
+        class="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary"
+      />
     </UButton>
 
-    <UButton :to="`/trips/${tripId}/checklist`" color="neutral" variant="ghost">
-      Checklist
-    </UButton>
-
-    <UButton :to="`/trips/${tripId}/bookings`" color="neutral" variant="ghost">
-      Bookings
-    </UButton>
-
-    <UTooltip text="In development" :content="{ side: 'top' }">
+    <!-- <UTooltip text="In development" :content="{ side: 'top' }">
       <div
         tabindex="0"
         aria-disabled="true"
@@ -25,6 +59,6 @@ defineProps<{ tripId: string }>();
         <UIcon name="i-lucide-triangle-alert" class="size-4 text-warning" />
         <span> Documents </span>
       </div>
-    </UTooltip>
+    </UTooltip> -->
   </nav>
 </template>

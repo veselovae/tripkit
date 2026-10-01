@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useChecklist } from "~/composables/useChecklist";
 import type { ChecklistGroupWithItems } from "~~/shared/types/checklist";
 import { VueDraggable } from "vue-draggable-plus";
 
@@ -8,11 +7,16 @@ const emit = defineEmits<{ refresh: [] }>();
 
 const { createItem, updateGroup, deleteGroup, reorderItems } = useChecklist();
 
+const toast = useToast();
+
 const newItem = ref("");
 const adding = ref(false);
-
 const editingGroup = ref(false);
 const groupTitle = ref(props.group.title);
+const savingGroup = ref(false);
+const deleteDialogOpen = ref(false);
+const deletingGroup = ref(false);
+const localItems = ref([...props.group.items]);
 
 watch(
   () => props.group.title,
@@ -20,32 +24,6 @@ watch(
     groupTitle.value = value;
   },
 );
-
-const saveGroup = async () => {
-  const title = groupTitle.value.trim();
-
-  if (!title) return;
-
-  await updateGroup(props.group.id, { title });
-
-  editingGroup.value = false;
-
-  emit("refresh");
-};
-
-const removeGroup = async () => {
-  const confirmed = window.confirm(
-    `Delete "${props.group.title}" and all its items?`,
-  );
-
-  if (!confirmed) return;
-
-  await deleteGroup(props.group.id);
-
-  emit("refresh");
-};
-
-const localItems = ref([...props.group.items]);
 
 watch(
   () => props.group.items,
@@ -55,18 +33,89 @@ watch(
   { deep: true },
 );
 
+const startEditingGroup = () => {
+  groupTitle.value = props.group.title;
+  editingGroup.value = true;
+};
+
+const cancelEditingGroup = () => {
+  groupTitle.value = props.group.title;
+  editingGroup.value = false;
+};
+
+const saveGroup = async () => {
+  const title = groupTitle.value.trim();
+
+  if (!title) return;
+
+  savingGroup.value = true;
+
+  try {
+    await updateGroup(props.group.id, {
+      title,
+    });
+
+    editingGroup.value = false;
+
+    toast.add({ title: "Group updated", icon: "i-lucide-check" });
+
+    emit("refresh");
+  } catch {
+    toast.add({
+      title: "Could not update group",
+      color: "error",
+      icon: "i-lucide-circle-alert",
+    });
+  } finally {
+    savingGroup.value = false;
+  }
+};
+
 const addItem = async () => {
   const title = newItem.value.trim();
+
   if (!title) return;
 
   adding.value = true;
 
   try {
     await createItem(props.group.id, title);
+
     newItem.value = "";
+
+    toast.add({ title: "Item added", icon: "i-lucide-plus" });
+
     emit("refresh");
+  } catch {
+    toast.add({
+      title: "Could not add item",
+      color: "error",
+      icon: "i-lucide-circle-alert",
+    });
   } finally {
     adding.value = false;
+  }
+};
+
+const confirmDeleteGroup = async () => {
+  deletingGroup.value = true;
+
+  try {
+    await deleteGroup(props.group.id);
+
+    deleteDialogOpen.value = false;
+
+    toast.add({ title: "Group deleted", icon: "i-lucide-trash-2" });
+
+    emit("refresh");
+  } catch {
+    toast.add({
+      title: "Could not delete group",
+      color: "error",
+      icon: "i-lucide-circle-alert",
+    });
+  } finally {
+    deletingGroup.value = false;
   }
 };
 
@@ -81,6 +130,12 @@ const saveItemsOrder = async () => {
 
     emit("refresh");
   } catch {
+    toast.add({
+      title: "Could not save item order",
+      color: "error",
+      icon: "i-lucide-circle-alert",
+    });
+
     emit("refresh");
   }
 };
@@ -89,87 +144,138 @@ const saveItemsOrder = async () => {
 <template>
   <UCard>
     <template #header>
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex min-w-0 items-start gap-3">
           <UButton
-            icon="i-lucide-grip-vertical"
+            icon="
+              i-lucide-grip-vertical
+            "
             color="neutral"
             variant="ghost"
             size="xs"
-            class="group-drag-handle cursor-grab active:cursor-grabbing"
-            aria-label="Reorder group"
+            class="group-drag-handle mt-1 cursor-grab active:cursor-grabbing"
+            aria-label="
+              Reorder group
+            "
           />
 
           <div
-            class="flex size-9 items-center justify-center rounded-lg bg-elevated"
+            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-elevated"
           >
             <UIcon :name="`i-lucide-${group.icon}`" class="size-5" />
           </div>
 
-          <div>
+          <div class="min-w-0">
             <form
               v-if="editingGroup"
               class="flex items-center gap-2"
               @submit.prevent="saveGroup"
             >
               <UInput v-model="groupTitle" autofocus size="sm" />
-              <UButton type="submit" icon="i-lucide-check" size="xs" />
+
+              <UButton
+                type="submit"
+                icon="
+                  i-lucide-check
+                "
+                size="xs"
+                :loading="savingGroup"
+              />
+
+              <UButton
+                type="button"
+                icon="
+                  i-lucide-x
+                "
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                :disabled="savingGroup"
+                @click="cancelEditingGroup"
+              />
             </form>
 
-            <h2 v-else class="font-semibold">
+            <h2 v-else class="truncate font-semibold">
               {{ group.title }}
             </h2>
 
-            <p class="text-xs text-muted">
-              {{ group.items.filter((item) => item.completed).length }}
+            <p class="mt-1 text-xs text-muted">
+              {{ localItems.filter((item) => item.completed).length }}
               /
-              {{ group.items.length }}
+              {{ localItems.length }}
               completed
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex shrink-0 gap-1">
           <UButton
-            icon="i-lucide-pencil"
+            icon="
+              i-lucide-pencil
+            "
             color="neutral"
             variant="ghost"
             size="xs"
-            @click="editingGroup = true"
+            aria-label="
+              Edit group
+            "
+            @click="startEditingGroup"
           />
 
           <UButton
-            icon="i-lucide-trash-2"
+            icon="
+              i-lucide-trash-2
+            "
             color="error"
             variant="ghost"
             size="xs"
-            @click="removeGroup"
+            aria-label="
+              Delete group
+            "
+            @click="deleteDialogOpen = true"
           />
         </div>
       </div>
     </template>
 
-    <div class="space-y-2">
-      <VueDraggable
-        v-model="localItems"
-        handle=".item-drag-handle"
-        :animation="180"
-        @end="saveItemsOrder"
-      >
-        <ChecklistItem
-          v-for="item in localItems"
-          :key="item.id"
-          :item="item"
-          @refresh="emit('refresh')"
-        />
-      </VueDraggable>
+    <VueDraggable
+      v-model="localItems"
+      handle="
+        .item-drag-handle
+      "
+      :animation="180"
+      @end="saveItemsOrder"
+    >
+      <ChecklistItem
+        v-for="item in localItems"
+        :key="item.id"
+        :item="item"
+        @refresh="emit('refresh')"
+      />
+    </VueDraggable>
 
-      <form class="flex gap-2 pt-2" @submit.prevent="addItem">
-        <UInput v-model="newItem" placeholder="Add item..." class="flex-1" />
-        <UButton type="submit" icon="i-lucide-plus" :loading="adding">
-          Add
-        </UButton>
-      </form>
-    </div>
+    <form
+      class="mt-3 flex gap-2 border-t border-default pt-4"
+      @submit.prevent="addItem"
+    >
+      <UInput v-model="newItem" placeholder="Add item..." class="flex-1" />
+
+      <UButton type="submit" icon="i-lucide-plus" :loading="adding">
+        Add
+      </UButton>
+    </form>
+
+    <ConfirmDialog
+      v-model:open="deleteDialogOpen"
+      title="
+        Delete checklist group?
+      "
+      :description="`Delete &quot;${group.title}&quot; and all items inside it?`"
+      confirm-label="
+        Delete group
+      "
+      :loading="deletingGroup"
+      @confirm="confirmDeleteGroup"
+    />
   </UCard>
 </template>

@@ -13,16 +13,10 @@ const tripId = String(route.params.id);
 
 const { createGroup, reorderGroups, applyDefaultTemplate } = useChecklist();
 
-const { data: trip } = await useFetch<Trip>(`/api/trips/${tripId}`);
+const { data: trip, status: tripStatus, error: tripError, refresh: refreshTrip } =
+  await useLazyFetch<Trip>(`/api/trips/${tripId}`);
 
-if (!trip.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: "Trip not found",
-  });
-}
-
-const { data: groups, refresh } = await useFetch<ChecklistGroupWithItems[]>(
+const { data: groups, status: dataStatus, error: dataError, refresh } = await useLazyFetch<ChecklistGroupWithItems[]>(
   `/api/trips/${tripId}/checklist`,
   { default: () => [] },
 );
@@ -107,113 +101,134 @@ const progress = computed(() => {
 
   return Math.round((completedItems.value / totalItems.value) * 100);
 });
+
+const dataLoaded = ref(false);
+watch(dataStatus, (status) => {
+  if (status === "success") dataLoaded.value = true;
+}, { immediate: true });
+const loading = computed(() =>
+  (!trip.value && (tripStatus.value === "idle" || tripStatus.value === "pending")) ||
+  (!dataLoaded.value && (dataStatus.value === "idle" || dataStatus.value === "pending")),
+);
+const loadError = computed(() =>
+  (!trip.value && tripError.value) || (!dataLoaded.value && dataError.value),
+);
+const retryLoad = () => Promise.all([refreshTrip(), refresh()]);
 </script>
 
 <template>
   <div class="mx-auto max-w-5xl">
-    <UButton
-      :to="`/trips/${tripId}`"
-      icon="i-lucide-arrow-left"
-      color="neutral"
-      variant="ghost"
-      class="mb-6"
-    >
-      Back to trip
-    </UButton>
+    <TripPageSkeleton v-if="loading" />
+    <AppErrorState
+      v-else-if="loadError"
+      title="Could not load checklist"
+      @retry="retryLoad"
+    />
+    <template v-else-if="trip">
+      <UButton
+        :to="`/trips/${tripId}`"
+        icon="i-lucide-arrow-left"
+        color="neutral"
+        variant="ghost"
+        class="mb-6"
+      >
+        Back to trip
+      </UButton>
 
-    <div class="mb-6">
-      <h1 class="text-3xl font-semibold">
-        {{ trip?.title }}
-      </h1>
+      <div class="mb-6">
+        <h1 class="text-3xl font-semibold">
+          {{ trip?.title }}
+        </h1>
 
-      <p class="mt-1 text-muted">
-        {{ trip?.destination }}
-      </p>
-    </div>
-
-    <TripNavigation :trip-id="tripId" />
-
-    <UCard class="mb-8">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <div class="font-medium">Checklist progress</div>
-
-          <div class="mt-1 text-sm text-muted">
-            {{ completedItems }}
-            of
-            {{ totalItems }}
-            completed
-          </div>
-        </div>
-
-        <div class="text-lg font-semibold">{{ progress }}%</div>
+        <p class="mt-1 text-muted">
+          {{ trip?.destination }}
+        </p>
       </div>
 
-      <UProgress :model-value="progress" class="mt-4" />
-    </UCard>
+      <TripNavigation :trip-id="tripId" />
 
-    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end">
-      <UFormField label="New group" class="flex-1">
-        <UInput
-          v-model="groupForm.title"
-          placeholder="Documents"
-          class="w-full"
-        />
-      </UFormField>
+      <UCard class="mb-8">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <div class="font-medium">Checklist progress</div>
 
-      <UFormField label="Icon">
-        <USelect
-          v-model="groupForm.icon"
-          :icon="`i-lucide-${groupForm.icon}`"
-          :items="checklistIcons"
-          value-key="value"
-          label-key="label"
-          class="w-48"
-        />
-      </UFormField>
+            <div class="mt-1 text-sm text-muted">
+              {{ completedItems }}
+              of
+              {{ totalItems }}
+              completed
+            </div>
+          </div>
 
-      <UButton icon="i-lucide-plus" :loading="creatingGroup" @click="addGroup">
-        Add group
-      </UButton>
-    </div>
+          <div class="text-lg font-semibold">{{ progress }}%</div>
+        </div>
 
-    <VueDraggable
-      v-if="localGroups.length"
-      v-model="localGroups"
-      handle=".group-drag-handle"
-      :animation="180"
-      class="space-y-4"
-      @end="saveGroupsOrder"
-    >
-      <ChecklistGroup
-        v-for="group in localGroups"
-        :key="group.id"
-        :group="group"
-        @refresh="refresh"
-      />
-    </VueDraggable>
+        <UProgress :model-value="progress" class="mt-4" />
+      </UCard>
 
-    <div
-      v-else
-      class="flex min-h-80 flex-col items-center justify-center rounded-xl border border-dashed border-default text-center"
-    >
-      <UIcon name="i-lucide-list-checks" class="mb-4 size-10 text-muted" />
+      <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end">
+        <UFormField label="New group" class="flex-1">
+          <UInput
+            v-model="groupForm.title"
+            placeholder="Documents"
+            class="w-full"
+          />
+        </UFormField>
 
-      <h2 class="font-medium">Your checklist is empty</h2>
+        <UFormField label="Icon">
+          <USelect
+            v-model="groupForm.icon"
+            :icon="`i-lucide-${groupForm.icon}`"
+            :items="checklistIcons"
+            value-key="value"
+            label-key="label"
+            class="w-48"
+          />
+        </UFormField>
 
-      <p class="mt-2 max-w-sm text-sm text-muted">
-        Start from our travel template or create your own groups.
-      </p>
+        <UButton icon="i-lucide-plus" :loading="creatingGroup" @click="addGroup">
+          Add group
+        </UButton>
+      </div>
 
-      <UButton
-        icon="i-lucide-sparkles"
-        variant="soft"
-        class="mt-6"
-        :loading="applyingTemplate"
-        @click="useStarterTemplate"
+      <VueDraggable
+        v-if="localGroups.length"
+        v-model="localGroups"
+        handle=".group-drag-handle"
+        :animation="180"
+        class="space-y-4"
+        @end="saveGroupsOrder"
       >
-        Use starter checklist
-      </UButton>
-    </div>
+        <ChecklistGroup
+          v-for="group in localGroups"
+          :key="group.id"
+          :group="group"
+          @refresh="refresh"
+        />
+      </VueDraggable>
+
+      <div
+        v-else
+        class="flex min-h-80 flex-col items-center justify-center rounded-xl border border-dashed border-default text-center"
+      >
+        <UIcon name="i-lucide-list-checks" class="mb-4 size-10 text-muted" />
+
+        <h2 class="font-medium">Your checklist is empty</h2>
+
+        <p class="mt-2 max-w-sm text-sm text-muted">
+          Start from our travel template or create your own groups.
+        </p>
+
+        <UButton
+          icon="i-lucide-sparkles"
+          variant="soft"
+          class="mt-6"
+          :loading="applyingTemplate"
+          @click="useStarterTemplate"
+        >
+          Use starter checklist
+        </UButton>
+      </div>
+    </template>
   </div>
 </template>

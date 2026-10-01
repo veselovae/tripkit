@@ -4,9 +4,12 @@ defineProps<{ tripId: string }>();
 
 <template>
   <UCard>
-    <h2 class="font-semibold">Quick actions</h2>
+    <div class="flex items-center gap-2">
+      <UIcon name="i-lucide-zap" class="size-5" />
+      <h2 class="font-semibold">Quick actions</h2>
+    </div>
 
-    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+    <div class="mt-5 grid gap-3 sm:grid-cols-2">
       <UButton
         :to="`/trips/${tripId}/checklist`"
         icon="i-lucide-list-checks"

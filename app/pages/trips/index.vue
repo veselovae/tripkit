@@ -3,7 +3,12 @@ import type { Trip } from "~~/shared/types/trip";
 
 definePageMeta({ middleware: "auth" });
 
-const { data: trips, status, refresh } = await useFetch<Trip[]>("/api/trips");
+const {
+  data: trips,
+  status,
+  error,
+  refresh,
+} = await useLazyFetch<Trip[]>("/api/trips");
 </script>
 
 <template>
@@ -19,15 +24,24 @@ const { data: trips, status, refresh } = await useFetch<Trip[]>("/api/trips");
         </p>
       </div>
 
-      <UButton to="/trips/new" icon="i-lucide-plus"> Create trip </UButton>
+      <UButton to="/trips/new" icon="i-lucide-plus">Create trip</UButton>
     </div>
 
     <div
-      v-if="status === 'pending'"
+      v-if="!trips && (status === 'idle' || status === 'pending')"
+      role="status"
+      aria-label="Loading trips"
+      aria-busy="true"
       class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
     >
-      <USkeleton v-for="index in 3" :key="index" class="h-52" />
+      <AppSkeletonCard v-for="index in 3" :key="index" :lines="3" />
     </div>
+
+    <AppErrorState
+      v-else-if="error && !trips"
+      title="Could not load trips"
+      @retry="refresh()"
+    />
 
     <div
       v-else-if="!trips?.length"
