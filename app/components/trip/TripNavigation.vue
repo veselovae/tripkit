@@ -16,6 +16,15 @@ defineProps<{ tripId: string }>();
       Bookings
     </UButton>
 
-    <UButton disabled color="neutral" variant="ghost">Documents</UButton>
+    <UTooltip text="In development" :content="{ side: 'top' }">
+      <div
+        tabindex="0"
+        aria-disabled="true"
+        class="flex cursor-not-allowed items-center gap-2 px-3 py-2 text-sm text-muted opacity-70"
+      >
+        <UIcon name="i-lucide-triangle-alert" class="size-4 text-warning" />
+        <span> Documents </span>
+      </div>
+    </UTooltip>
   </nav>
 </template>

@@ -1,24 +1,46 @@
 <script setup lang="ts">
-import type { Trip } from "~~/shared/types/trip";
+import type { TripOverview } from "~~/shared/types/tripOverview";
 
-definePageMeta({ middleware: "auth" });
+definePageMeta({
+  middleware: "auth",
+});
 
 const route = useRoute();
 
-const { data: trip, error } = await useFetch<Trip>(
-  `/api/trips/${route.params.id}`,
-);
+const tripId = String(route.params.id);
 
-if (error.value) {
+const {
+  data: overview,
+  error,
+  refresh,
+} = await useFetch<TripOverview>(`/api/trips/${tripId}/overview`);
+
+if (error.value || !overview.value) {
   throw createError({
     statusCode: 404,
     statusMessage: "Trip not found",
   });
 }
+
+const trip = computed(() => overview.value!.trip);
+
+const checklist = computed(() => overview.value!.checklist);
+
+const nextTransport = computed(() => overview.value!.nextTransport);
+
+const accommodation = computed(() => overview.value!.accommodation);
+
+const formatTripDate = (value: string) => {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+};
 </script>
 
 <template>
-  <div v-if="trip" class="mx-auto max-w-7xl">
+  <div class="mx-auto max-w-5xl">
     <UButton
       to="/trips"
       icon="i-lucide-arrow-left"
@@ -26,26 +48,53 @@ if (error.value) {
       variant="ghost"
       class="mb-6"
     >
-      All trips
+      Trips
     </UButton>
 
     <div
-      class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+      class="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between"
     >
       <div>
         <h1 class="text-3xl font-semibold">
           {{ trip.title }}
         </h1>
 
-        <div class="mt-2 flex items-center gap-2 text-muted">
-          <UIcon name="i-lucide-map-pin" class="size-4" />
+        <div class="mt-1 flex flex-wrap gap-x-5 gap-y-2 text-muted">
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-lucide-map-pin"
+              class="size-4"
+            />
 
-          {{ trip.destination }}
+            <span>
+              {{ trip.destination }}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-lucide-calendar-days"
+              class="size-4"
+            />
+
+            <span>
+              {{ formatTripDate(trip.startDate) }}
+              —
+              {{ formatTripDate(trip.endDate) }}
+            </span>
+          </div>
         </div>
+
+        <p
+          v-if="trip.description"
+          class="mt-4 max-w-2xl text-sm leading-6 text-muted"
+        >
+          {{ trip.description }}
+        </p>
       </div>
 
       <UButton
-        :to="`/trips/${trip.id}/settings`"
+        :to="`/trips/${tripId}/settings`"
         icon="i-lucide-settings"
         color="neutral"
         variant="soft"
@@ -54,38 +103,24 @@ if (error.value) {
       </UButton>
     </div>
 
-    <TripNavigation :trip-id="trip.id" />
+    <TripNavigation :trip-id="tripId" />
 
-    <div class="mb-8 grid gap-4 md:grid-cols-3">
-      <UCard>
-        <div class="text-sm text-muted">Start</div>
+    <div class="grid gap-6 xl:grid-cols-2">
+      <ChecklistProgressCard
+        :trip-id="tripId"
+        :total="checklist.total"
+        :completed="checklist.completed"
+        :progress="checklist.progress"
+      />
 
-        <div class="mt-1 font-medium">
-          {{ trip.startDate }}
-        </div>
-      </UCard>
+      <QuickActionsCard :trip-id="tripId" />
 
-      <UCard>
-        <div class="text-sm text-muted">End</div>
+      <NextTransportCard :trip-id="tripId" :transport="nextTransport" />
 
-        <div class="mt-1 font-medium">
-          {{ trip.endDate }}
-        </div>
-      </UCard>
-
-      <UCard>
-        <div class="text-sm text-muted">Checklist</div>
-
-        <div class="mt-1 font-medium">Coming next</div>
-      </UCard>
+      <AccommodationSummaryCard
+        :trip-id="tripId"
+        :accommodation="accommodation"
+      />
     </div>
-
-    <UCard v-if="trip.description">
-      <h2 class="mb-3 font-semibold">Notes</h2>
-
-      <p class="whitespace-pre-line text-sm text-muted">
-        {{ trip.description }}
-      </p>
-    </UCard>
   </div>
 </template>
